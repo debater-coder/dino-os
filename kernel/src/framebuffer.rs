@@ -22,29 +22,30 @@ impl Screen {
     }
 
     pub fn draw_line(&mut self, x1: isize, y1: isize, x2: isize, y2: isize, color: Color) {
+        // #CopyPasta
         let steep = (y2 - y1).abs() > (x2 - x1).abs();
-    let (x0, mut y0) = if steep {
-        (y1, x1)
-    } else {
-        (x1, y1)
-    };
-    let (x3, y3) = if steep {
-        (y2, x2)
-    } else {
-        (x2, y2)
-    };
-    let dx = x3 - x0;
-    let dy = (y3 - y0).abs();
-    let mut error = dx / 2;
-    let ystep = if y0 < y3 { 1 } else { -1 };
-    for x in x0..=x3 {
-        self.draw_pixel(if steep { y0.try_into().unwrap() } else { x.try_into().unwrap() }, if steep {x.try_into().unwrap()} else {y0.try_into().unwrap()}, color);
-        error -= dy;
-        if error < 0 {
-            y0 += ystep;
-            error += dx;
+        let (x0, mut y0) = if steep {
+            (y1, x1)
+        } else {
+            (x1, y1)
+        };
+        let (x3, y3) = if steep {
+            (y2, x2)
+        } else {
+            (x2, y2)
+        };
+        let dx = x3 - x0;
+        let dy = (y3 - y0).abs();
+        let mut error = dx / 2;
+        let ystep = if y0 < y3 { 1 } else { -1 };
+        for x in x0..=x3 {
+            self.draw_pixel(if steep { y0.try_into().unwrap() } else { x.try_into().unwrap() }, if steep {x.try_into().unwrap()} else {y0.try_into().unwrap()}, color);
+            error -= dy;
+            if error < 0 {
+                y0 += ystep;
+                error += dx;
+            }
         }
-    }
     }
 
     pub fn draw_pixel(&mut self, x: usize, y: usize, color: Color) {
