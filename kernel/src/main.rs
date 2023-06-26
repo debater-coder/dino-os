@@ -13,12 +13,15 @@ fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
         let info = framebuffer.info();
         let mut screen = Screen::new(framebuffer.buffer_mut(), info);
         
-        for x in 0..info.width-1 {
-            for y in 0..info.height-1 {
+        // Clear the screen with white
+        screen.clear_grayscale(255);
 
-                screen.draw_pixel(x, y, Color(x as u8, y as u8, 128))
-            }
-        }
+        // Draw a black pixel at (0, 0)
+        screen.draw_pixel(0, 0, Color(0, 0, 0));
+
+        // Draw a red line
+
+        screen.draw_line(100, 100, 300, 300, Color(255, 0, 0))
     }
     loop {}
 }
