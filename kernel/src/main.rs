@@ -1,25 +1,18 @@
 #![no_std]
 #![no_main]
+#![feature(abi_x86_interrupt)]
 
 use bootloader_api::BootInfo;
 use core::panic::PanicInfo;
 use noto_sans_mono_bitmap::{FontWeight, RasterHeight};
 use screen::Screen;
 
+mod gdt;
+mod interrupts;
 mod screen;
 mod serial;
 
 bootloader_api::entry_point!(kernel_main);
-
-fn init_screen(boot_info: &'static mut BootInfo) -> Screen {
-    let framebuffer = boot_info
-        .framebuffer
-        .as_mut()
-        .expect("Failed to get framebuffer");
-
-    let info = framebuffer.info();
-    Screen::new(framebuffer.buffer_mut(), info)
-}
 
 fn draw(screen: &mut Screen) {
     let (width, _height) = (screen.width(), screen.height());
@@ -39,7 +32,10 @@ fn draw(screen: &mut Screen) {
 
 fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
     // Initialise screen
-    let mut screen = init_screen(boot_info);
+    let mut screen = screen::init_screen(boot_info);
+
+    gdt::init();
+    interrupts::init_idt();
 
     draw(&mut screen);
 
@@ -49,5 +45,6 @@ fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
 // This function is called on panic.
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
+    serial_println!("{}", _info);
     loop {}
 }

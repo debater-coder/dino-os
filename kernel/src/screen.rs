@@ -1,4 +1,8 @@
-use bootloader_api::info::{FrameBufferInfo, PixelFormat};
+#![allow(dead_code)]
+use bootloader_api::{
+    info::{FrameBufferInfo, PixelFormat},
+    BootInfo,
+};
 use core::ptr;
 use noto_sans_mono_bitmap::{
     get_raster, get_raster_width, FontWeight, RasterHeight, RasterizedChar,
@@ -60,7 +64,6 @@ impl Screen {
     }
 
     // Prints a rendered char into the framebuffer.
-    // Updates `self.x_pos`.
     fn write_rendered_char(&mut self, rendered_char: RasterizedChar, x_pos: usize, y_pos: usize) {
         for (y, row) in rendered_char.raster().iter().enumerate() {
             for (x, byte) in row.iter().enumerate() {
@@ -116,4 +119,14 @@ impl Screen {
             .copy_from_slice(&color[..bytes_per_pixel]);
         let _ = unsafe { ptr::read_volatile(&self.framebuffer[byte_offset]) };
     }
+}
+
+pub fn init_screen(boot_info: &'static mut BootInfo) -> Screen {
+    let framebuffer = boot_info
+        .framebuffer
+        .as_mut()
+        .expect("Failed to get framebuffer");
+
+    let info = framebuffer.info();
+    Screen::new(framebuffer.buffer_mut(), info)
 }
