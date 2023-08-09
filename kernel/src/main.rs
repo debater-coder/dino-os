@@ -4,7 +4,7 @@
 use core::panic::PanicInfo;
 mod framebuffer;
 use bootloader_api::BootInfo;
-use framebuffer::{Screen};
+use framebuffer::Screen;
 
 bootloader_api::entry_point!(kernel_main);
 
