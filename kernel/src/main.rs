@@ -14,6 +14,12 @@ mod serial;
 
 bootloader_api::entry_point!(kernel_main);
 
+pub fn hlt_loop() -> ! {
+    loop {
+        x86_64::instructions::hlt();
+    }
+}
+
 fn draw(screen: &mut Screen) {
     let (width, _height) = (screen.width(), screen.height());
 
@@ -37,14 +43,16 @@ fn kernel_main(boot_info: &'static mut BootInfo) -> ! {
     gdt::init();
     interrupts::init_idt();
 
+    serial_println!("Kernel loaded successfully.");
+
     draw(&mut screen);
 
-    loop {}
+    hlt_loop();
 }
 
 // This function is called on panic.
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     serial_println!("{}", _info);
-    loop {}
+    hlt_loop();
 }
